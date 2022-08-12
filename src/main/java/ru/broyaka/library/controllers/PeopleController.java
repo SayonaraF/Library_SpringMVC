@@ -6,17 +6,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.broyaka.library.DAO.BookDAO;
-import ru.broyaka.library.DAO.PersonDAO;
+import ru.broyaka.library.dao.PersonDAO;
 import ru.broyaka.library.models.Person;
 
 @Controller
 @RequestMapping("/people")
 public class PeopleController {
-    private PersonDAO personDAO;
+    private final PersonDAO personDAO;
 
     @Autowired
-    public PeopleController(PersonDAO personDAO, BookDAO bookDAO) {
+    public PeopleController(PersonDAO personDAO) {
         this.personDAO = personDAO;
     }
 
@@ -41,8 +40,9 @@ public class PeopleController {
 
     @PostMapping()
     public String create(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()) {
             return "people/new";
+        }
         personDAO.create(person);
         return "redirect:/people";
     }
@@ -55,8 +55,9 @@ public class PeopleController {
 
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult) {
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()) {
             return "people/update";
+        }
         personDAO.update(person);
         return "redirect:/people";
     }

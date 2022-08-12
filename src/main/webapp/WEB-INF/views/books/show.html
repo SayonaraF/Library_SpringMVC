@@ -6,13 +6,13 @@
 </head>
 <body>
 <p th:text="${book.getName() + ', ' + book.getAuthor() + ', ' + book.getYear()}">NAME</p>
-<div th:unless="${book.getPerson_id() == 0}">
+<div th:unless="${book.getPersonId() == 0}">
     <div th:text="'Книга сейчас у: ' + ${owner.getName()}">VALUE</div>
     <form th:method="DELETE" th:action="@{/books/{id}/release(id=${book.getId()})}">
         <input type="submit" value="Освободить книгу"/>
     </form>
 </div>
-<div th:if="${book.getPerson_id() == 0}">
+<div th:if="${book.getPersonId() == 0}">
     <div>Эта книга свободна. Кому назначить её?</div>
     <form th:method="PATCH" th:action="@{/books/{id}/add(id=${book.getId()})}">
         <label for="person">Выберите человека </label>

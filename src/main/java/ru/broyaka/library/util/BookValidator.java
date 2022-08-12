@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.broyaka.library.DAO.BookDAO;
+import ru.broyaka.library.dao.BookDAO;
 import ru.broyaka.library.models.Book;
 
 @Component
 public class BookValidator implements Validator {
-    private BookDAO bookDAO;
+    private final BookDAO bookDAO;
 
     @Autowired
     public BookValidator(BookDAO bookDAO) {
