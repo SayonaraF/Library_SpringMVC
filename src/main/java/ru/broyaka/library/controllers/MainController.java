@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/library")
 public class MainController {
 
-    @GetMapping()
+    @GetMapping
     public String index() {
         return "startPage";
     }

@@ -27,7 +27,7 @@ public class BookController {
         this.bookValidator = bookValidator;
     }
 
-    @GetMapping()
+    @GetMapping
     public String index(Model model) {
         model.addAttribute("books", bookDAO.index());
         return "books/booksIndex";
@@ -37,7 +37,7 @@ public class BookController {
     public String show(Model model, @PathVariable("id") int id, @ModelAttribute("person") Person person) {
         model.addAttribute("book", bookDAO.show(id));
         model.addAttribute("people", personDAO.index());
-        model.addAttribute("owner", bookDAO.findPerson(id));
+        model.addAttribute("owner", bookDAO.findPersonByID(id));
         return "books/show";
     }
 

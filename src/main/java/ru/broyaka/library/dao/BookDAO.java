@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Component
 public class BookDAO {
-    private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_BOOKS = "SELECT * FROM book";
     private static final String SELECT_BOOK_ONE = "SELECT * FROM book WHERE id=?";
     private static final String SELECT_BOOK_NAME = "SELECT * FROM book WHERE name=?";
@@ -23,6 +22,7 @@ public class BookDAO {
     private static final String FIND_OWNER = "SELECT person.id, person.name, birthday from person inner join book on person.id = book.person_id where book.id=?";
     private static final String UPDATE_OWNER = "UPDATE book SET person_id=? WHERE id=?";
     private static final String RELEASE_BOOK = "UPDATE book SET person_id=null WHERE id=?";
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public BookDAO(JdbcTemplate jdbcTemplate) {
@@ -57,7 +57,7 @@ public class BookDAO {
         jdbcTemplate.update(DELETE_BOOK, id);
     }
 
-    public Person findPerson(int id) {
+    public Person findPersonByID(int id) {
         return jdbcTemplate.query(FIND_OWNER,
                 new Object[]{id}, new BeanPropertyRowMapper<>(Person.class)).stream().findAny().orElse(null);
     }

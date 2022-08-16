@@ -11,7 +11,6 @@ import java.util.List;
 
 @Component
 public class PersonDAO {
-    private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_PEOPLE = "SELECT * FROM Person";
     private static final String SELECT_PERSON = "SELECT * FROM person WHERE id=?";
     private static final String NEW_PERSON = "INSERT INTO Person(name, birthday) VALUES (?, ?)";
@@ -19,6 +18,7 @@ public class PersonDAO {
     private static final String UPDATE_PERSON_ID = "UPDATE Book SET person_id=null WHERE person_id=?";
     private static final String DELETE_PERSON = "DELETE FROM Person WHERE id=?";
     private static final String SELECT_PERSON_BOOKS = "SELECT * FROM Book WHERE person_id=?";
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public PersonDAO(JdbcTemplate jdbcTemplate) {
