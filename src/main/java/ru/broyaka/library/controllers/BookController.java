@@ -5,8 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.broyaka.library.DAO.BookDAO;
-import ru.broyaka.library.DAO.PersonDAO;
+import ru.broyaka.library.dao.BookDAO;
+import ru.broyaka.library.dao.PersonDAO;
 import ru.broyaka.library.models.Book;
 import ru.broyaka.library.models.Person;
 import ru.broyaka.library.util.BookValidator;
@@ -18,7 +18,7 @@ import javax.validation.Valid;
 public class BookController {
     private final BookDAO bookDAO;
     private final PersonDAO personDAO;
-    private BookValidator bookValidator;
+    private final BookValidator bookValidator;
 
     @Autowired
     public BookController(BookDAO bookDAO, PersonDAO personDAO, BookValidator bookValidator) {
@@ -27,7 +27,7 @@ public class BookController {
         this.bookValidator = bookValidator;
     }
 
-    @GetMapping()
+    @GetMapping
     public String index(Model model) {
         model.addAttribute("books", bookDAO.index());
         return "books/booksIndex";
@@ -37,7 +37,7 @@ public class BookController {
     public String show(Model model, @PathVariable("id") int id, @ModelAttribute("person") Person person) {
         model.addAttribute("book", bookDAO.show(id));
         model.addAttribute("people", personDAO.index());
-        model.addAttribute("owner", bookDAO.findPerson(id));
+        model.addAttribute("owner", bookDAO.findPersonByID(id));
         return "books/show";
     }
 
@@ -62,8 +62,9 @@ public class BookController {
     @PostMapping
     public String create(@ModelAttribute("book") @Valid Book book, BindingResult bindingResult) {
         bookValidator.validate(book, bindingResult);
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()) {
             return "books/new";
+        }
         bookDAO.create(book);
         return "redirect:/books";
     }
@@ -77,8 +78,9 @@ public class BookController {
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("book") @Valid Book book, BindingResult bindingResult) {
         bookValidator.validate(book, bindingResult);
-        if (bindingResult.hasErrors())
+        if (bindingResult.hasErrors()) {
             return "books/update";
+        }
         bookDAO.update(book);
         return "redirect:/books";
     }

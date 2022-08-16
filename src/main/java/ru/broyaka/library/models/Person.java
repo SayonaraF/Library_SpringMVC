@@ -1,46 +1,18 @@
 package ru.broyaka.library.models;
 
+import lombok.*;
+import org.hibernate.validator.constraints.Range;
+
 import javax.validation.constraints.*;
 
+@Data
 public class Person {
-    @NotEmpty(message = "ФИО не может быть пустым")
+    @NotBlank(message = "ФИО не может быть пустым")
     @Size(min = 2, max = 40, message = "ФИО должно быть от 2 до 40 символов")
+    @Pattern(regexp = "(?U)[А-Я]\\w+ [А-Я]\\w+ [А-Я]\\w+", message = "Пример ввода: Иванов Иван Иванович")
     private String name;
-    @Max(value = 2023, message = "Год не может превышать текущий")
-    @Min(value = 0, message = "Год не может быть отрицательным")
+    @Range(min = 1900, max = 2022, message = "Пример ввода: 1997")
     private int birthday;
     private int id;
 
-    public Person() {
-    }
-
-    public Person(String name, int birthday, int id) {
-        this.name = name;
-        this.birthday = birthday;
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getBirthday() {
-        return birthday;
-    }
-
-    public void setBirthday(int birthday) {
-        this.birthday = birthday;
-    }
 }

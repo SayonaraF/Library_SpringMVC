@@ -1,4 +1,4 @@
-package ru.broyaka.library.DAO;
+package ru.broyaka.library.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import ru.broyaka.library.models.Book;
@@ -14,7 +14,7 @@ public class BookRowMapper implements RowMapper<Book> {
         book.setName(resultSet.getString(2));
         book.setAuthor(resultSet.getString(3));
         book.setYear(resultSet.getInt(4));
-        book.setPerson_id(resultSet.getInt(5));
+        book.setPersonId(resultSet.getInt(5));
         return book;
     }
 }
