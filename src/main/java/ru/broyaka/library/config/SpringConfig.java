@@ -7,8 +7,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -17,10 +20,12 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @ComponentScan("ru.broyaka.library")
-@PropertySource("classpath:database.properties")
+@PropertySource("classpath:hibernate.properties")
+@EnableTransactionManagement
 @EnableWebMvc
 public class SpringConfig implements WebMvcConfigurer {
     private final ApplicationContext applicationContext;
@@ -63,16 +68,36 @@ public class SpringConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         DriverManagerDataSource source = new DriverManagerDataSource();
 
-        source.setDriverClassName(environment.getProperty("driver"));
-        source.setUrl(environment.getProperty("url"));
-        source.setUsername(environment.getProperty("user"));
-        source.setPassword(environment.getProperty("password"));
+        source.setDriverClassName(environment.getProperty("hibernate.driver_class"));
+        source.setUrl(environment.getProperty("hibernate.connection.url"));
+        source.setUsername(environment.getProperty("hibernate.connection.username"));
+        source.setPassword(environment.getProperty("hibernate.connection.password"));
 
         return source;
     }
 
+    private Properties hibernateProperties() {
+        Properties properties = new Properties();
+        properties.put("hibernate.dialect", environment.getProperty("hibernate.dialect"));
+        properties.put("hibernate.show_sql", environment.getProperty("hibernate.show_sql"));
+
+        return properties;
+    }
+
     @Bean
-    public JdbcTemplate jdbcTemplate() {
-        return new JdbcTemplate(dataSource());
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setPackagesToScan("ru.broyaka.library.models");
+        sessionFactory.setHibernateProperties(hibernateProperties());
+
+        return sessionFactory;
+    }
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+        transactionManager.setSessionFactory(sessionFactory().getObject());
+
+        return transactionManager;
     }
 }

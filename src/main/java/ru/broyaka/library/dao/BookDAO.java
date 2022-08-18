@@ -1,72 +1,82 @@
 package ru.broyaka.library.dao;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.broyaka.library.mapper.BookRowMapper;
+import org.springframework.transaction.annotation.Transactional;
 import ru.broyaka.library.models.Book;
 import ru.broyaka.library.models.Person;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class BookDAO {
-    private static final String SELECT_BOOKS = "SELECT * FROM book";
-    private static final String SELECT_BOOK_ONE = "SELECT * FROM book WHERE id=?";
-    private static final String SELECT_BOOK_NAME = "SELECT * FROM book WHERE name=?";
-    private static final String NEW_BOOK = "INSERT INTO book(name, author, year) VALUES(?, ?, ?)";
-    private static final String UPDATE_BOOK = "UPDATE book SET name=?, author=?, year=? WHERE id=?";
-    private static final String DELETE_BOOK = "DELETE FROM book WHERE id=?";
-    private static final String FIND_OWNER = "SELECT person.id, person.name, birthday from person inner join book on person.id = book.person_id where book.id=?";
-    private static final String UPDATE_OWNER = "UPDATE book SET person_id=? WHERE id=?";
-    private static final String RELEASE_BOOK = "UPDATE book SET person_id=null WHERE id=?";
-    private final JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public BookDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public BookDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
+    @Transactional(readOnly = true)
     public List<Book> index() {
-        return jdbcTemplate.query(SELECT_BOOKS, new BookRowMapper());
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery("SELECT b FROM Book b", Book.class).getResultList();
     }
 
+    @Transactional(readOnly = true)
     public Book show(int id) {
-        return jdbcTemplate.query(SELECT_BOOK_ONE, new Object[]{id},
-                        new BookRowMapper()).stream().findAny().orElse(null);
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.get(Book.class, id);
     }
 
-    public Optional<Book> show(String name) {
-        return jdbcTemplate.query(SELECT_BOOK_NAME, new Object[]{name},
-                        new BookRowMapper()).stream().findAny();
+    // не хочет работать с Optional, пока не разобрался что делать, когда возвращает null
+    @Transactional(readOnly = true)
+    public Book showSameName(String name) {
+        Session session = sessionFactory.getCurrentSession();
+        // пока не разобрался как написать без деприкейтед метода поиск не по праймари кей
+        Criteria criteria = session.createCriteria(Book.class);
+        criteria.add(Restrictions.eq("name", name));
+
+        return (Book) criteria.uniqueResult();
     }
 
+    @Transactional
     public void create(Book book) {
-        jdbcTemplate.update(NEW_BOOK, book.getName(), book.getAuthor(),
-                book.getYear());
+        Session session = sessionFactory.getCurrentSession();
+        session.save(book);
     }
 
+    @Transactional
     public void update(Book book) {
-        jdbcTemplate.update(UPDATE_BOOK, book.getName(), book.getAuthor(),
-                book.getYear(), book.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(book);
     }
 
+    @Transactional
     public void delete(int id) {
-        jdbcTemplate.update(DELETE_BOOK, id);
+        Session session = sessionFactory.getCurrentSession();
+        Book book = session.get(Book.class, id);
+        session.delete(book);
     }
 
-    public Person findPersonByID(int id) {
-        return jdbcTemplate.query(FIND_OWNER,
-                new Object[]{id}, new BeanPropertyRowMapper<>(Person.class)).stream().findAny().orElse(null);
-    }
-
+    @Transactional
     public void choosePerson(int id, int personId) {
-        jdbcTemplate.update(UPDATE_OWNER, personId, id);
+        Session session = sessionFactory.getCurrentSession();
+        Book book = session.get(Book.class, id);
+        Person person = session.get(Person.class, personId);
+        book.setOwner(person);
     }
 
+    @Transactional
     public void releaseBook(int id) {
-        jdbcTemplate.update(RELEASE_BOOK, id);
+        Session session = sessionFactory.getCurrentSession();
+        Book book = session.get(Book.class, id);
+        book.setOwner(null);
     }
 }

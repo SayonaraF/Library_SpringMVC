@@ -24,7 +24,7 @@ public class BookValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         Book book = (Book) o;
-        if (bookDAO.show(book.getName()).isPresent()) {
+        if (bookDAO.showSameName(book.getName()) != null) {
             errors.rejectValue("name", "", "Книга с таким названием уже существует");
         }
     }
