@@ -7,6 +7,8 @@ import org.springframework.validation.Validator;
 import ru.broyaka.library.dao.BookDAO;
 import ru.broyaka.library.models.Book;
 
+import java.util.Optional;
+
 @Component
 public class BookValidator implements Validator {
     private final BookDAO bookDAO;
@@ -24,7 +26,8 @@ public class BookValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         Book book = (Book) o;
-        if (bookDAO.show(book.getName()).isPresent()) {
+
+        if (bookDAO.showSameName(book.getName()).isPresent()) {
             errors.rejectValue("name", "", "Книга с таким названием уже существует");
         }
     }

@@ -1,9 +1,10 @@
 package ru.broyaka.library.dao;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.broyaka.library.models.Book;
 import ru.broyaka.library.models.Person;
 
@@ -11,44 +12,53 @@ import java.util.List;
 
 @Component
 public class PersonDAO {
-    private static final String SELECT_PEOPLE = "SELECT * FROM Person";
-    private static final String SELECT_PERSON = "SELECT * FROM person WHERE id=?";
-    private static final String NEW_PERSON = "INSERT INTO Person(name, birthday) VALUES (?, ?)";
-    private static final String UPDATE_PERSON = "UPDATE Person SET name=?, birthday=? WHERE id=?";
-    private static final String UPDATE_PERSON_ID = "UPDATE Book SET person_id=null WHERE person_id=?";
-    private static final String DELETE_PERSON = "DELETE FROM Person WHERE id=?";
-    private static final String SELECT_PERSON_BOOKS = "SELECT * FROM Book WHERE person_id=?";
-    private final JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public PersonDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public PersonDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
+    @Transactional(readOnly = true)
     public List<Person> index() {
-        return jdbcTemplate.query(SELECT_PEOPLE, new BeanPropertyRowMapper<>(Person.class));
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery("SELECT p FROM Person p", Person.class).getResultList();
     }
 
+    @Transactional(readOnly = true)
     public Person show(int id) {
-        return jdbcTemplate.query(SELECT_PERSON, new Object[]{id},
-                new BeanPropertyRowMapper<>(Person.class)).stream().findAny().orElse(null);
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.get(Person.class, id);
     }
 
+    @Transactional
     public void create(Person person) {
-        jdbcTemplate.update(NEW_PERSON, person.getName(), person.getBirthday());
+        Session session = sessionFactory.getCurrentSession();
+        session.save(person);
     }
-
+    @Transactional
     public void update(Person person) {
-        jdbcTemplate.update(UPDATE_PERSON, person.getName(), person.getBirthday(), person.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(person);
     }
 
+    @Transactional
     public void delete(int id) {
-        jdbcTemplate.update(UPDATE_PERSON_ID, id);
-        jdbcTemplate.update(DELETE_PERSON, id);
+        Session session = sessionFactory.getCurrentSession();
+        Person person = session.get(Person.class, id);
+        session.delete(person);
     }
 
+    @Transactional
     public List<Book> personBooks(int personId) {
-        return jdbcTemplate.query(SELECT_PERSON_BOOKS, new Object[]{personId},
-                new BeanPropertyRowMapper<>(Book.class));
+        Session session = sessionFactory.getCurrentSession();
+        System.out.println(personId);
+        Person person = session.get(Person.class, personId);
+
+        // не работает без этой строчки, пока не понял как исправить
+        System.out.println(person.getBooks());
+        return person.getBooks();
     }
 }

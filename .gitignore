@@ -1,4 +1,4 @@
 # Project exclude paths
 /target/
 /.idea/
-/src/main/resources/database.properties
+/src/main/resources/hibernate.properties

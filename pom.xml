@@ -14,13 +14,15 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring.version>5.2.22.RELEASE</spring.version>
+    <spring.version>5.3.24</spring.version>
+    <spring.data.version>2.7.6</spring.data.version>
     <junit.version>4.13.2</junit.version>
     <thymeleaf.version>3.0.15.RELEASE</thymeleaf.version>
     <javax.servlet.version>4.0.1</javax.servlet.version>
     <mysql.version>8.0.30</mysql.version>
     <hibernate.validator.version>6.1.6.Final</hibernate.validator.version>
     <lombok.version>1.18.24</lombok.version>
+    <hibernate-core.version>5.4.32.Final</hibernate-core.version>
   </properties>
 
   <dependencies>
@@ -93,6 +95,17 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>${hibernate-core.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
 
   </dependencies>
 
