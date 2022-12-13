@@ -1,5 +1,6 @@
 package ru.broyaka.library.dao;
 
+import lombok.Lombok;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -11,6 +12,7 @@ import ru.broyaka.library.models.Book;
 import ru.broyaka.library.models.Person;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class BookDAO {
@@ -37,13 +39,13 @@ public class BookDAO {
 
     // не хочет работать с Optional, пока не разобрался что делать, когда возвращает null
     @Transactional(readOnly = true)
-    public Book showSameName(String name) {
+    public Optional<Book> showSameName(String name) {
         Session session = sessionFactory.getCurrentSession();
         // пока не разобрался как написать без деприкейтед метода поиск не по праймари кей
         Criteria criteria = session.createCriteria(Book.class);
         criteria.add(Restrictions.eq("name", name));
 
-        return (Book) criteria.uniqueResult();
+        return Optional.ofNullable((Book) criteria.uniqueResult());
     }
 
     @Transactional

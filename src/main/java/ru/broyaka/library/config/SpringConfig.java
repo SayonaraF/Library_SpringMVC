@@ -20,6 +20,7 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
+import java.util.Objects;
 import java.util.Properties;
 
 @Configuration
@@ -68,7 +69,7 @@ public class SpringConfig implements WebMvcConfigurer {
     public DataSource dataSource() {
         DriverManagerDataSource source = new DriverManagerDataSource();
 
-        source.setDriverClassName(environment.getProperty("hibernate.driver_class"));
+        source.setDriverClassName(Objects.requireNonNull(environment.getProperty("hibernate.driver_class")));
         source.setUrl(environment.getProperty("hibernate.connection.url"));
         source.setUsername(environment.getProperty("hibernate.connection.username"));
         source.setPassword(environment.getProperty("hibernate.connection.password"));
