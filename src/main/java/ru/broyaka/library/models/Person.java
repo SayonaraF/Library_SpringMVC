@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Objects;
 
 
-// класс не работает с lombok, создается цикл в методе toString и генерит stackOverFlow, пока не разобрался в причине
 @Data
 @ToString(exclude = "books")
 @Entity
@@ -32,7 +31,9 @@ public class Person {
     @Column(name = "birthday")
     @Range(min = 1900, max = 2022, message = "Пример ввода: 1997")
     private int birthday;
-    @OneToMany(mappedBy = "owner")
+
+    // eager - иначе он не подгружает списки книг в класс Person
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private List<Book> books;
 
     @Override

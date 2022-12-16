@@ -1,21 +1,17 @@
 package ru.broyaka.library.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.broyaka.library.dao.BookDAO;
 import ru.broyaka.library.models.Book;
-
-import java.util.Optional;
+import ru.broyaka.library.services.BooksService;
 
 @Component
 public class BookValidator implements Validator {
-    private final BookDAO bookDAO;
+    private final BooksService booksService;
 
-    @Autowired
-    public BookValidator(BookDAO bookDAO) {
-        this.bookDAO = bookDAO;
+    public BookValidator(BooksService booksService) {
+        this.booksService = booksService;
     }
 
     @Override
@@ -27,7 +23,7 @@ public class BookValidator implements Validator {
     public void validate(Object o, Errors errors) {
         Book book = (Book) o;
 
-        if (bookDAO.showSameName(book.getName()).isPresent()) {
+        if (booksService.findByName(book.getName()).isPresent()) {
             errors.rejectValue("name", "", "Книга с таким названием уже существует");
         }
     }
